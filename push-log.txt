@@ -1,0 +1,81 @@
+﻿git.exe : 19:39:14.026652 exec-cmd.c:266          trace: resolved executable dir: C:/Program 
+Files/Git/mingw64/bin
+At line:1 char:1
++ & 'C:\Program Files\Git\bin\git.exe' -c credential.helper= push -u or ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (19:39:14.026652...Git/mingw64/bin:String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+19:39:14.048738 git.c:502               trace: built-in: git push -u origin main
+19:39:14.053737 run-command.c:674       trace: run_command: GIT_DIR=.git git remote-https 
+origin https://github.com/leesypeterson@gmail.com/glass-rose.git
+19:39:14.053737 run-command.c:935       trace: start_command: git remote-https origin 
+https://github.com/leesypeterson@gmail.com/glass-rose.git
+19:39:14.073448 exec-cmd.c:266          trace: resolved executable dir: C:/Program 
+Files/Git/mingw64/libexec/git-core
+19:39:14.089079 git.c:809               trace: exec: git-remote-https origin 
+https://github.com/leesypeterson@gmail.com/glass-rose.git
+19:39:14.089079 run-command.c:674       trace: run_command: git-remote-https origin 
+https://github.com/leesypeterson@gmail.com/glass-rose.git
+19:39:14.089079 run-command.c:935       trace: start_command: git-remote-https origin 
+https://github.com/leesypeterson@gmail.com/glass-rose.git
+19:39:14.104699 exec-cmd.c:266          trace: resolved executable dir: C:/Program 
+Files/Git/mingw64/libexec/git-core
+19:39:14.135938 http.c:915              == Info: Couldn't find host github.com in the .netrc 
+file; using defaults
+19:39:14.151558 http.c:915              == Info: Host github.com:443 was resolved.
+19:39:14.151558 http.c:915              == Info: IPv6: (none)
+19:39:14.151558 http.c:915              == Info: IPv4: 140.82.113.4
+19:39:14.151558 http.c:915              == Info:   Trying 140.82.113.4:443...
+19:39:14.271331 http.c:915              == Info: schannel: disabled automatic use of client 
+certificate
+19:39:14.275103 http.c:915              == Info: ALPN: curl offers http/1.1
+19:39:14.384206 http.c:915              == Info: ALPN: server accepted http/1.1
+19:39:14.384206 http.c:915              == Info: Established connection to github.com 
+(140.82.113.4 port 443) from 192.168.12.123 port 53907 
+19:39:14.384206 http.c:915              == Info: using HTTP/1.x
+19:39:14.384206 http.c:862              => Send header, 0000000216 bytes (0x000000d8)
+19:39:14.384206 http.c:874              => Send header: GET 
+/leesypeterson@gmail.com/glass-rose.git/info/refs?service=git-receive-pack HTTP/1.1
+19:39:14.384206 http.c:874              => Send header: Host: github.com
+19:39:14.384206 http.c:874              => Send header: User-Agent: git/2.52.0.windows.1
+19:39:14.384206 http.c:874              => Send header: Accept: */*
+19:39:14.384206 http.c:874              => Send header: Accept-Encoding: deflate, gzip, br, 
+zstd
+19:39:14.384206 http.c:874              => Send header: Pragma: no-cache
+19:39:14.384206 http.c:874              => Send header:
+19:39:14.384206 http.c:915              == Info: Request completely sent off
+19:39:14.486215 http.c:915              == Info: schannel: remote party requests renegotiation
+19:39:14.486215 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+19:39:14.488216 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+19:39:14.488216 http.c:915              == Info: schannel: remote party requests renegotiation
+19:39:14.489217 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+19:39:14.489217 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+19:39:14.489217 http.c:862              <= Recv header, 0000000024 bytes (0x00000018)
+19:39:14.489217 http.c:874              <= Recv header: HTTP/1.1 404 Not Found
+19:39:14.489217 http.c:862              <= Recv header, 0000000026 bytes (0x0000001a)
+19:39:14.489217 http.c:874              <= Recv header: Server: GitHub-Babel/3.0
+19:39:14.489217 http.c:862              <= Recv header, 0000000054 bytes (0x00000036)
+19:39:14.489217 http.c:874              <= Recv header: Content-Security-Policy: default-src 
+'none'; sandbox
+19:39:14.489217 http.c:862              <= Recv header, 0000000041 bytes (0x00000029)
+19:39:14.489217 http.c:874              <= Recv header: Content-Type: text/plain; charset=UTF-8
+19:39:14.489217 http.c:862              <= Recv header, 0000000020 bytes (0x00000014)
+19:39:14.489217 http.c:874              <= Recv header: Content-Length: 21
+19:39:14.489217 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+19:39:14.489217 http.c:874              <= Recv header: Date: Sun, 01 Feb 2026 01:39:15 GMT
+19:39:14.489217 http.c:862              <= Recv header, 0000000056 bytes (0x00000038)
+19:39:14.489217 http.c:874              <= Recv header: X-GitHub-Request-Id: 
+3B3C:440C4:B5E4EB:E2434D:697EAEC3
+19:39:14.489217 http.c:862              <= Recv header, 0000000023 bytes (0x00000017)
+19:39:14.489217 http.c:874              <= Recv header: X-Frame-Options: DENY
+19:39:14.489217 http.c:862              <= Recv header, 0000000073 bytes (0x00000049)
+19:39:14.489217 http.c:874              <= Recv header: Strict-Transport-Security: 
+max-age=31536000; includeSubDomains; preload
+19:39:14.489217 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+19:39:14.489217 http.c:874              <= Recv header:
+19:39:14.489217 http.c:915              == Info: Connection #0 to host github.com:443 left 
+intact
+remote: Repository not found.
+fatal: repository 'https://github.com/leesypeterson@gmail.com/glass-rose.git/' not found

@@ -26,3 +26,4 @@ Thumbs.db
 # Large public assets (use Git LFS or external storage)
 web/public/*.png
 services/api/scripts/process_withdrawals.js
+services/api/scripts/process_withdrawals.js

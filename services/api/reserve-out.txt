@@ -1,0 +1,4 @@
+﻿{
+    "reservation_id":  "8035de82-1c12-4bf4-8a7b-12ddb91c8dff",
+    "available_balance":  980
+}
