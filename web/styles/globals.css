@@ -1,0 +1,17 @@
+:root{
+  --rose-gold: #B76E79;
+  --deep-burgundy: #5C0B1E;
+  --velvet-black: #0B0B0D;
+  --royal-blue: #0B3D91;
+  --accent-gold: #D4AF37;
+  --glass-highlight: rgba(255,255,255,0.08);
+  --font-base: Inter, system-ui, Arial, sans-serif;
+}
+
+html,body,#__next{height:100%}
+body{margin:0;font-family:var(--font-base);background:var(--velvet-black);color:#fff}
+.container{max-width:980px;margin:0 auto;padding:48px}
+.hero{padding:48px 0;text-align:center}
+.title{font-size:48px;color:var(--deep-burgundy);margin:0}
+.subtitle{color:var(--glass-highlight)}
+.btn-primary{background:linear-gradient(180deg,var(--rose-gold),var(--accent-gold));border:none;padding:12px 20px;border-radius:8px;color:#fff;cursor:pointer}

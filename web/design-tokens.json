@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "roseGold": "#B76E79",
+    "deepBurgundy": "#5C0B1E",
+    "velvetBlack": "#0B0B0D",
+    "royalBlue": "#0B3D91",
+    "glassHighlight": "rgba(255,255,255,0.08)",
+    "accentGold": "#D4AF37"
+  },
+  "shadows": {
+    "orb": "0 8px 24px rgba(179,110,121,0.18)"
+  },
+  "fonts": {
+    "base": "Inter, system-ui, Arial, sans-serif"
+  }
+}

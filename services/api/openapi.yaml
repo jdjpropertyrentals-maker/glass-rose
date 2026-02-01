@@ -1,0 +1,285 @@
+openapi: 3.0.1
+info:
+  title: Glass Rose API
+  version: 0.1.0
+  description: Full OpenAPI for Glass Rose MVP (auth, payments, kyc, games, admin)
+servers:
+  - url: https://api.glassrose.example.com/v1
+paths:
+  /v1/auth/signup:
+    post:
+      summary: Create a user account
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /v1/auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: tokens
+  /v1/auth/refresh:
+    post:
+      summary: Refresh access token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: new tokens
+
+  /v1/users/me:
+    get:
+      summary: Get current user
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: user object
+
+  /v1/kyc/start:
+    post:
+      summary: Start KYC flow (returns provider token/redirect)
+      tags: [KYC]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+      responses:
+        '200':
+          description: provider token
+
+  /v1/kyc/webhook:
+    post:
+      summary: KYC provider webhook
+      tags: [KYC]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: accepted
+
+  /v1/payments/deposit/stripe/create-session:
+    post:
+      summary: Create a Stripe checkout session
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, currency]
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        '200':
+          description: Stripe session created
+
+  /v1/payments/webhook/stripe:
+    post:
+      summary: Stripe webhook receiver
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook received
+
+  /v1/payments/deposit/coinbase/create:
+    post:
+      summary: Create Coinbase Commerce charge
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, currency]
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        '200':
+          description: Coinbase charge created
+
+  /v1/payments/webhook/coinbase:
+    post:
+      summary: Coinbase Commerce webhook
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook received
+
+  /v1/wallets:
+    get:
+      summary: List user wallets/accounts
+      tags: [Wallet]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: list of accounts
+
+  /v1/ledger:
+    get:
+      summary: Get ledger entries (paginated)
+      tags: [Wallet]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ledger entries
+
+  /v1/withdrawals:
+    post:
+      summary: Request withdrawal
+      tags: [Wallet]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [destination, amount, currency]
+              properties:
+                destination:
+                  type: object
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        '201':
+          description: withdrawal created
+
+  /v1/games:
+    get:
+      summary: List games
+      tags: [Games]
+      responses:
+        '200':
+          description: games list
+
+  /v1/games/{id}/spin:
+    post:
+      summary: Play a game (spin)
+      tags: [Games]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stake, client_seed]
+              properties:
+                stake:
+                  type: number
+                client_seed:
+                  type: string
+      responses:
+        '200':
+          description: spin result
+
+  /v1/admin/audit-logs:
+    get:
+      summary: Admin: search audit logs
+      tags: [Admin]
+      security:
+        - bearerAuth: [admin]
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: audit results
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas: {}

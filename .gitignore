@@ -1,0 +1,28 @@
+# Node
+node_modules/
+.next/
+/dist/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Backups
+*.backup
+
+# Large public assets (use Git LFS or external storage)
+web/public/*.png
+services/api/scripts/process_withdrawals.js

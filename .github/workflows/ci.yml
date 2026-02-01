@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [web, admin, services/api, services/payments, services/game-server, services/kyc-proxy]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps for ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: |
+          if [ -f package.json ]; then npm ci; else echo "no package.json"; fi
+      - name: Run basic lint (if exists)
+        working-directory: ${{ matrix.service }}
+        run: |
+          if [ -f package.json ]; then npm run lint --if-present; fi
+      - name: List files
+        run: ls -la ${{ matrix.service }} || true
