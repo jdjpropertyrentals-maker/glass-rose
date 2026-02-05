@@ -6,15 +6,19 @@ const DB_FILE = path.join(__dirname, 'dev.sqlite3')
 const seedBalance = 1000.0
 const USE_INMEM = process.env.USE_SQLITE_INMEM === '1' || process.env.USE_SQLITE_INMEM === 'true'
 let inMemoryDb = null
+let persistentDb = null
 
 function openDb() {
   if (USE_INMEM) {
     if (!inMemoryDb) inMemoryDb = new sqlite3.Database(':memory:')
-    return { db: inMemoryDb, exists: true }
+    return { db: inMemoryDb, exists: true, shouldClose: false }
   }
   const exists = fs.existsSync(DB_FILE)
-  const db = new sqlite3.Database(DB_FILE)
-  return { db, exists }
+  // Reuse persistent connection instead of opening new one each time
+  if (!persistentDb) {
+    persistentDb = new sqlite3.Database(DB_FILE)
+  }
+  return { db: persistentDb, exists, shouldClose: false }
 }
 
 function run(db, sql, params=[]) {
@@ -52,7 +56,11 @@ async function init() {
   await run(db, `CREATE TABLE IF NOT EXISTS accounts (id TEXT PRIMARY KEY, user_id TEXT, currency TEXT, available_balance REAL, hold_balance REAL, UNIQUE(user_id, currency));`)
   await run(db, `CREATE TABLE IF NOT EXISTS reservations (id TEXT PRIMARY KEY, account_id TEXT, user_id TEXT, currency TEXT, amount REAL, created_at TEXT);`)
   await run(db, `CREATE TABLE IF NOT EXISTS ledger_transactions (id TEXT PRIMARY KEY, account_id TEXT, type TEXT, amount REAL, balance_before REAL, balance_after REAL, related_id TEXT, related_type TEXT, created_at TEXT);`)
-  if (!USE_INMEM) db.close()
+  
+  // Add indexes for performance on frequently queried columns
+  await run(db, `CREATE INDEX IF NOT EXISTS idx_accounts_user_id_currency ON accounts(user_id, currency);`)
+  await run(db, `CREATE INDEX IF NOT EXISTS idx_reservations_account_id ON reservations(account_id);`)
+  await run(db, `CREATE INDEX IF NOT EXISTS idx_ledger_account_id ON ledger_transactions(account_id);`)
 }
 
 async function getOrCreateAccount(user_id, currency='CRED') {
@@ -70,8 +78,6 @@ async function getOrCreateAccount(user_id, currency='CRED') {
   } catch (err) {
     await run(db, 'ROLLBACK')
     throw err
-  } finally {
-    if (!USE_INMEM) db.close()
   }
 }
 
@@ -108,8 +114,6 @@ async function reserveFunds(user_id, currency='CRED', amount) {
   } catch (err) {
     await run(db, 'ROLLBACK')
     throw err
-  } finally {
-    if (!USE_INMEM) db.close()
   }
 }
 
@@ -137,8 +141,6 @@ async function commitReservation(reservation_id, payout_amount=0, related_id=nul
   } catch (err) {
     await run(db, 'ROLLBACK')
     throw err
-  } finally {
-    if (!USE_INMEM) db.close()
   }
 }
 
@@ -159,8 +161,6 @@ async function releaseReservation(reservation_id) {
   } catch (err) {
     await run(db, 'ROLLBACK')
     throw err
-  } finally {
-    if (!USE_INMEM) db.close()
   }
 }
 
@@ -168,10 +168,8 @@ async function getAccounts(user_id) {
   const { db } = openDb()
   try {
     const rows = await all(db, 'SELECT currency, available_balance, hold_balance FROM accounts WHERE user_id = ?', [user_id])
-    if (!USE_INMEM) db.close()
     return rows
   } catch (err) {
-    if (!USE_INMEM) db.close()
     throw err
   }
 }

@@ -43,21 +43,27 @@ app.post('/v1/games/:id/spin', async (req, res) => {
   const { user_id, stake, client_seed } = req.body || {}
   if (!user_id || !stake || !client_seed) return res.status(400).json({ error: 'user_id, stake and client_seed required' })
 
-  // Reserve stake via API wallet endpoint
+  // Reserve stake via API wallet endpoint with timeout protection
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+    
     const reserveResp = await fetch('http://localhost:4300/v1/wallets/reserve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id, amount: Number(stake), currency: 'CRED' })
+      body: JSON.stringify({ user_id, amount: Number(stake), currency: 'CRED' }),
+      signal: controller.signal
     })
+    clearTimeout(timeoutId)
+    
     if (!reserveResp.ok) {
       const err = await reserveResp.json().catch(()=>({ error: 'reserve_failed' }))
       return res.status(402).json({ error: 'reserve_failed', detail: err })
     }
-    var reserveData = await reserveResp.json()
+    const reserveData = await reserveResp.json()
   } catch (err) {
     console.error('Reserve error', err)
-    return res.status(500).json({ error: 'reserve_error' })
+    return res.status(500).json({ error: err.name === 'AbortError' ? 'reserve_timeout' : 'reserve_error' })
   }
 
   const entry = ensureSeed(gameId)
@@ -73,25 +79,47 @@ app.post('/v1/games/:id/spin', async (req, res) => {
   entry.hash = serverSeedHash(newSeed)
   entry.nonceCounter = 0
 
-  // Commit reservation and apply payout via API
+  // Commit reservation and apply payout via API with timeout protection
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+    
     const commitResp = await fetch('http://localhost:4300/v1/wallets/commit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reservation_id: reserveData.reservation_id, payout_amount: payout, related_id: null })
+      body: JSON.stringify({ reservation_id: reserveData.reservation_id, payout_amount: payout, related_id: null }),
+      signal: controller.signal
     })
+    clearTimeout(timeoutId)
+    
     if (!commitResp.ok) {
       const err = await commitResp.json().catch(()=>({ error: 'commit_failed' }))
-      // attempt to release reservation
-      await fetch('http://localhost:4300/v1/wallets/release', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ reservation_id: reserveData.reservation_id }) })
+      // attempt to release reservation with timeout
+      const releaseController = new AbortController()
+      const releaseTimeout = setTimeout(() => releaseController.abort(), 5000)
+      await fetch('http://localhost:4300/v1/wallets/release', { 
+        method: 'POST', 
+        headers: {'Content-Type':'application/json'}, 
+        body: JSON.stringify({ reservation_id: reserveData.reservation_id }),
+        signal: releaseController.signal
+      }).catch(() => {})
+      clearTimeout(releaseTimeout)
       return res.status(500).json({ error: 'commit_failed', detail: err })
     }
-    var commitData = await commitResp.json()
+    const commitData = await commitResp.json()
   } catch (err) {
     console.error('Commit error', err)
-    // attempt to release reservation
-    await fetch('http://localhost:4300/v1/wallets/release', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ reservation_id: reserveData.reservation_id }) })
-    return res.status(500).json({ error: 'commit_error' })
+    // attempt to release reservation with timeout
+    const releaseController = new AbortController()
+    const releaseTimeout = setTimeout(() => releaseController.abort(), 5000)
+    await fetch('http://localhost:4300/v1/wallets/release', { 
+      method: 'POST', 
+      headers: {'Content-Type':'application/json'}, 
+      body: JSON.stringify({ reservation_id: reserveData.reservation_id }),
+      signal: releaseController.signal
+    }).catch(() => {})
+    clearTimeout(releaseTimeout)
+    return res.status(500).json({ error: err.name === 'AbortError' ? 'commit_timeout' : 'commit_error' })
   }
 
   res.json({
