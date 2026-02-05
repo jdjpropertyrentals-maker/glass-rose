@@ -29,8 +29,8 @@ async function getOrCreateAccount(user_id, currency = 'CRED') {
 async function reserveFunds(user_id, currency = 'CRED', amount) {
   const key = `${user_id}:${currency}`
   if (!accounts.has(key)) {
-    const acc = await getOrCreateAccount(user_id, currency)
-    // Account is already set by getOrCreateAccount, no need to set again
+    await getOrCreateAccount(user_id, currency)
+    // Account is now in both accounts and accountsById maps via getOrCreateAccount
   }
   const account = accounts.get(key)
   if (account.available_balance < amount) return { error: 'insufficient_funds' }

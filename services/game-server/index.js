@@ -102,7 +102,7 @@ app.post('/v1/games/:id/spin', async (req, res) => {
         headers: {'Content-Type':'application/json'}, 
         body: JSON.stringify({ reservation_id: reserveData.reservation_id }),
         signal: releaseController.signal
-      }).catch(() => {})
+      }).catch((err) => console.error('Release cleanup failed:', err))
       clearTimeout(releaseTimeout)
       return res.status(500).json({ error: 'commit_failed', detail: err })
     }
@@ -117,7 +117,7 @@ app.post('/v1/games/:id/spin', async (req, res) => {
       headers: {'Content-Type':'application/json'}, 
       body: JSON.stringify({ reservation_id: reserveData.reservation_id }),
       signal: releaseController.signal
-    }).catch(() => {})
+    }).catch((err) => console.error('Release cleanup failed:', err))
     clearTimeout(releaseTimeout)
     return res.status(500).json({ error: err.name === 'AbortError' ? 'commit_timeout' : 'commit_error' })
   }
